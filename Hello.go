@@ -9,15 +9,21 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
 const urlBase  = "https://api.groupme.com/v3"
 
 type Group struct {
-	Id		string	`json:"id"`
-	GroupId	string	`json:"group_id"`
-	Name	string	`json:"name"`
+	Id		string			`json:"id"`
+	GroupId	string			`json:"group_id"`
+	Name	string			`json:"name"`
+	Members []interface{}   `json:"members"`
+}
+
+func (group Group) getNumMembers() int {
+	return len(group.Members)
 }
 
 
@@ -25,12 +31,18 @@ type Groups struct{
 	Groups	[]Group	`json:"response"`
 }
 
+type Event struct {
+	Type		string		`json:"type"`
+}
+
 type Message struct {
-	Name		string		`json:"name"`
-	Text		string		`json:"text"`
-	MessageId	string		`json:"id"`
-	FavoriteBy	[]string	`json:"favorited_by"`
-	TimeSent    int64       `json:"created_at"`
+	Name			 string		`json:"name"`
+	Text			 string		`json:"text"`
+	MessageId		 string		`json:"id"`
+	FavoriteBy		 []string	`json:"favorited_by"`
+	TimeSent    	 int64       `json:"created_at"`
+	Event			 Event		`json:"event"`
+	numMembersAtTime int
 }
 
 type Messages struct {
@@ -76,8 +88,37 @@ func getMessageBatch(groupId string, accessToken string, before_id string) ([]by
 
 }
 
-func addMessagesFromDate(year int, month time.Month, day int, messages []Message, messagesFromDate* []Message) {
+func countUsersAddedOrRemoved(str string) int {
+	count := 1
+	for _, c := range str {
+		if c == ',' {
+			count++
+		}
+	}
+	if count == 1 && strings.Contains(str, " and ") {
+		count++
+	}
+	return count
+}
+
+func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages []Message, messagesFromDate* []Message) {
 	for _, message := range(messages) {
+		if strings.Contains(message.Event.Type, "bot") {
+			continue
+		}
+		//if strings.Contains(message.Text, "Devin Frentz added Tyson Sutton") {
+		//	fmt.Println(message.Text)
+		//}
+		if message.Name == "GroupMe" && strings.Contains(message.Text, "added") {
+			fmt.Print("We have ", *numMembers, " members because ")
+			*numMembers = *numMembers - countUsersAddedOrRemoved(message.Text)
+			fmt.Println("we ADDED ", countUsersAddedOrRemoved(message.Text), "when we had ", *numMembers, message.Text)
+		}
+		if message.Name == "GroupMe" && strings.Contains(message.Text, "removed") {
+			fmt.Print("We have ", *numMembers, " members because ")
+			*numMembers = *numMembers + countUsersAddedOrRemoved(message.Text)
+			fmt.Println("we REMOVED ", countUsersAddedOrRemoved(message.Text), "when we had ", *numMembers, message.Text)
+		}
 		messageDate := time.Unix(message.TimeSent, 0)
 		messageYear, messageMonth, messageDay := messageDate.Date()
 		if messageYear == year {
@@ -85,13 +126,14 @@ func addMessagesFromDate(year int, month time.Month, day int, messages []Message
 		}
 		if messageMonth == month && messageDay == day {
 			*messagesFromDate = append(*messagesFromDate, message)
-			fmt.Println("Hey we added one")
 		}
 	}
 
 }
 
-func getAllMessages(groupId string, accessToken string, date time.Time) []Message{
+func getAllMessages(group Group, accessToken string, date time.Time) []Message{
+	groupId := group.GroupId
+	numMembers := group.getNumMembers()
 	year, month, day := date.Date()
 
 	beforeId := ""
@@ -101,13 +143,14 @@ func getAllMessages(groupId string, accessToken string, date time.Time) []Messag
 		if err != nil || len(body) == 0{
 			break
 		}
+		//fmt.Println(string(body))
 		messageResponse := MessagesResponse{}
 		err = json.Unmarshal(body, &messageResponse)
 		if err != nil {
 			panic(err)
 		}
 		messagesBatch := messageResponse.MessagesMap.Messages
-		addMessagesFromDate(year, month, day, messagesBatch, &messagesFromDate)
+		addMessagesFromDate(&numMembers, year, month, day, messagesBatch, &messagesFromDate)
 		lastMessage := messagesBatch[len(messagesBatch) - 1]
 		//fmt.Println(lastMessage)
 		beforeId = lastMessage.MessageId
@@ -117,6 +160,7 @@ func getAllMessages(groupId string, accessToken string, date time.Time) []Messag
 }
 
 func getFavoriteMessage(messages* []Message) Message{
+
 	var mostFavorited Message
 	mostFavorites := -1
 	for _, message := range(*messages) {
@@ -136,7 +180,6 @@ func postMessage(message Message, accessToken string, botId string) {
 		"text":  message.Text,
 	}
 	bytesRepresentation, err := json.Marshal(params)
-	fmt.Println(url)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
 		log.Fatalln(err)
@@ -152,16 +195,17 @@ func main() {
 
 	groups := getGroups(accessToken)
 	loc, _ := time.LoadLocation("EST")
-	currentTime := time.Date(2019, 2, 23,1, 1, 1,1, loc)//time.Now()
+	currentTime := time.Date(2019, 2, 22,1, 1, 1,1, loc)//time.Now()
 	var messagesFromToday []Message
 	for _, group := range groups.Groups {
 		if "7342563" == (group.GroupId) {
 			fmt.Println(group.Name)
-			messagesFromToday = getAllMessages(group.GroupId, accessToken, currentTime)
+			messagesFromToday = getAllMessages(group, accessToken, currentTime)
 		}
 	}
 	mostFavoritedMessage := getFavoriteMessage(&messagesFromToday)
 	postMessage(mostFavoritedMessage, accessToken, botId)
+	fmt.Println(messagesFromToday)
 
 
 }
