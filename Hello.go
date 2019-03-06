@@ -7,8 +7,10 @@ import (
 	"github.com/subosito/gotenv"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -109,7 +111,7 @@ func countUsersAddedOrRemoved(str string) int {
 	return count
 }
 
-func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages* []*Message, messagesFromDate* []Message) {
+func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages* []*Message, popularMessagesFromDate * []Message) {
 	for _, message := range(*messages) {
 		if strings.Contains(message.Event.Type, "bot") {
 			continue
@@ -127,20 +129,23 @@ func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, m
 			continue
 		}
 		if messageMonth == month && messageDay == day {
-			*messagesFromDate = append(*messagesFromDate, *message)
+			if message.isPopular() {
+				*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
+
+			}
 		}
 	}
 
 }
 
-func getAllMessages(group Group, accessToken string, date time.Time) []Message{
+func getPopularMessagesFromDate(group Group, accessToken string, date time.Time) []Message{
 	groupId := group.GroupId
 	numMembers := group.getNumMembers()
 	year, month, day := date.Date()
 
 	beforeId := ""
 	var allMessages []Message
-	var messagesFromDate []Message
+	var popularMessagesFromDate []Message
 	for {
 		body, err := getMessageBatch(groupId, accessToken, beforeId)
 		if err != nil || len(body) == 0{
@@ -153,7 +158,7 @@ func getAllMessages(group Group, accessToken string, date time.Time) []Message{
 			panic(err)
 		}
 		messagesBatch := messageResponse.MessagesMap.Messages
-		addMessagesFromDate(&numMembers, year, month, day, &messagesBatch, &messagesFromDate)
+		addMessagesFromDate(&numMembers, year, month, day, &messagesBatch, &popularMessagesFromDate)
 		lastMessage := messagesBatch[len(messagesBatch) - 1]
 		//fmt.Println(lastMessage)
 		beforeId = lastMessage.MessageId
@@ -163,41 +168,21 @@ func getAllMessages(group Group, accessToken string, date time.Time) []Message{
 		}
 	}
 
-	//sort.Slice(allMessages, func(i, j int) bool {
-	//	return allMessages[i].percentageLikes() > allMessages[j].percentageLikes()
-	//})
-	//
-	//size := len(allMessages)
-	//cutoff := allMessages[int(.05*float32(size))].percentageLikes()
-	//fmt.Println(cutoff)
 
-	return messagesFromDate
+	return popularMessagesFromDate
 }
 
-func getFavoriteMessage(messages* []Message) Message{
-	var popularMessages []Message
-	for _, message := range(*messages) {
-		if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime - 1) {
-			 continue
-		} else if message.numMembersAtTime >= 17 && message.numLikes() < 8 {
-			continue
-		} else if message.numMembersAtTime > 5 && message.numMembersAtTime < 17 && message.numLikes() < (4 + (message.numMembersAtTime - 5)/3) {
-			continue
-		}
-		popularMessages = append(popularMessages, message)
-	}
-	fmt.Println(len(popularMessages))
-	var mostFavorited Message
-	mostFavorites := -1
-	for _, message := range(popularMessages) {
-		favorites := message.numLikes()
-		if favorites > mostFavorites {
-			mostFavorites = favorites
-			mostFavorited = message
-		}
-	}
+func (message Message) isPopular() bool{
 
-	return mostFavorited
+	if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime - 1) {
+		return false
+	} else if message.numMembersAtTime >= 17 && message.numLikes() < 8 {
+		return false
+	} else if message.numMembersAtTime > 5 && message.numMembersAtTime < 17 && message.numLikes() < (4 + (message.numMembersAtTime - 5)/3) {
+		return false
+	}
+	return true
+
 }
 
 func postMessage(message Message, accessToken string, botId string) {
@@ -215,6 +200,33 @@ func postMessage(message Message, accessToken string, botId string) {
 
 }
 
+func getMessageToPost(messages* []Message) Message {
+	if len(*messages) == 0{
+		return Message{}
+	}
+	sort.Slice(*messages, func(i, j int) bool {
+		return (*messages)[i].percentageLikes() > (*messages)[j].percentageLikes()
+	})
+
+	var total float32 = 0.0
+	for _, message := range(*messages) {
+		total += message.percentageLikes()
+	}
+	source := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(source)
+	randNum := rng.Float32() * total
+	for i, message := range(*messages){
+		randNum -= message.percentageLikes()
+		if randNum <= 0 {
+			fmt.Println("INDEX IS", i, "LENGTH IS", len(*messages))
+			return message
+		}
+	}
+
+	return (*messages)[0]
+
+}
+
 func main() {
 	gotenv.Load()
 	accessToken := os.Getenv("ACCESS_TOKEN")
@@ -224,16 +236,15 @@ func main() {
 	for i:=1; i<31; i++ {
 		loc, _ := time.LoadLocation("EST")
 		currentTime := time.Date(2020, 2, i,1, 1, 1,1, loc)//time.Now()
-		var messagesFromToday []Message
+		var popularMessagesFromToday []Message
 		for _, group := range groups.Groups {
-			if "7342563" == (group.GroupId) {
+			if "20660885" == (group.GroupId) {
 				fmt.Println(group.Name)
-				messagesFromToday = getAllMessages(group, accessToken, currentTime)
+				popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
 			}
 		}
-		mostFavoritedMessage := getFavoriteMessage(&messagesFromToday)
-		postMessage(mostFavoritedMessage, accessToken, botId)
-		fmt.Println(i)
+		messageToPost := getMessageToPost(&popularMessagesFromToday)
+		postMessage(messageToPost, accessToken, botId)
 	}
 
 	//fmt.Println(messagesFromToday)
