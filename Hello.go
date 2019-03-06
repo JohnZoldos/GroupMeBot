@@ -45,8 +45,16 @@ type Message struct {
 	numMembersAtTime int
 }
 
+func (message Message) numLikes() int {
+	return len(message.FavoriteBy)
+}
+
+func (message Message) percentageLikes() float32 {
+	return float32(message.numLikes())/float32(message.numMembersAtTime)
+}
+
 type Messages struct {
-	Messages []Message `json:"messages"`
+	Messages []*Message `json:"messages"`
 }
 
 type MessagesResponse struct {
@@ -101,31 +109,25 @@ func countUsersAddedOrRemoved(str string) int {
 	return count
 }
 
-func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages []Message, messagesFromDate* []Message) {
-	for _, message := range(messages) {
+func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages* []*Message, messagesFromDate* []Message) {
+	for _, message := range(*messages) {
 		if strings.Contains(message.Event.Type, "bot") {
 			continue
 		}
-		//if strings.Contains(message.Text, "Devin Frentz added Tyson Sutton") {
-		//	fmt.Println(message.Text)
-		//}
 		if message.Name == "GroupMe" && strings.Contains(message.Text, "added") {
-			fmt.Print("We have ", *numMembers, " members because ")
 			*numMembers = *numMembers - countUsersAddedOrRemoved(message.Text)
-			fmt.Println("we ADDED ", countUsersAddedOrRemoved(message.Text), "when we had ", *numMembers, message.Text)
 		}
 		if message.Name == "GroupMe" && strings.Contains(message.Text, "removed") {
-			fmt.Print("We have ", *numMembers, " members because ")
 			*numMembers = *numMembers + countUsersAddedOrRemoved(message.Text)
-			fmt.Println("we REMOVED ", countUsersAddedOrRemoved(message.Text), "when we had ", *numMembers, message.Text)
 		}
+		message.numMembersAtTime = *numMembers
 		messageDate := time.Unix(message.TimeSent, 0)
 		messageYear, messageMonth, messageDay := messageDate.Date()
 		if messageYear == year {
 			continue
 		}
 		if messageMonth == month && messageDay == day {
-			*messagesFromDate = append(*messagesFromDate, message)
+			*messagesFromDate = append(*messagesFromDate, *message)
 		}
 	}
 
@@ -137,6 +139,7 @@ func getAllMessages(group Group, accessToken string, date time.Time) []Message{
 	year, month, day := date.Date()
 
 	beforeId := ""
+	var allMessages []Message
 	var messagesFromDate []Message
 	for {
 		body, err := getMessageBatch(groupId, accessToken, beforeId)
@@ -150,26 +153,50 @@ func getAllMessages(group Group, accessToken string, date time.Time) []Message{
 			panic(err)
 		}
 		messagesBatch := messageResponse.MessagesMap.Messages
-		addMessagesFromDate(&numMembers, year, month, day, messagesBatch, &messagesFromDate)
+		addMessagesFromDate(&numMembers, year, month, day, &messagesBatch, &messagesFromDate)
 		lastMessage := messagesBatch[len(messagesBatch) - 1]
 		//fmt.Println(lastMessage)
 		beforeId = lastMessage.MessageId
 
+		for _, message := range(messagesBatch) {
+			allMessages = append(allMessages, *message)
+		}
 	}
+
+	//sort.Slice(allMessages, func(i, j int) bool {
+	//	return allMessages[i].percentageLikes() > allMessages[j].percentageLikes()
+	//})
+	//
+	//size := len(allMessages)
+	//cutoff := allMessages[int(.05*float32(size))].percentageLikes()
+	//fmt.Println(cutoff)
+
 	return messagesFromDate
 }
 
 func getFavoriteMessage(messages* []Message) Message{
-
+	var popularMessages []Message
+	for _, message := range(*messages) {
+		if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime - 1) {
+			 continue
+		} else if message.numMembersAtTime >= 17 && message.numLikes() < 8 {
+			continue
+		} else if message.numMembersAtTime > 5 && message.numMembersAtTime < 17 && message.numLikes() < (4 + (message.numMembersAtTime - 5)/3) {
+			continue
+		}
+		popularMessages = append(popularMessages, message)
+	}
+	fmt.Println(len(popularMessages))
 	var mostFavorited Message
 	mostFavorites := -1
-	for _, message := range(*messages) {
-		favorites := len(message.FavoriteBy)
+	for _, message := range(popularMessages) {
+		favorites := message.numLikes()
 		if favorites > mostFavorites {
 			mostFavorites = favorites
 			mostFavorited = message
 		}
 	}
+
 	return mostFavorited
 }
 
@@ -194,18 +221,22 @@ func main() {
 	botId := os.Getenv("BOT_ID")
 
 	groups := getGroups(accessToken)
-	loc, _ := time.LoadLocation("EST")
-	currentTime := time.Date(2019, 2, 22,1, 1, 1,1, loc)//time.Now()
-	var messagesFromToday []Message
-	for _, group := range groups.Groups {
-		if "7342563" == (group.GroupId) {
-			fmt.Println(group.Name)
-			messagesFromToday = getAllMessages(group, accessToken, currentTime)
+	for i:=1; i<31; i++ {
+		loc, _ := time.LoadLocation("EST")
+		currentTime := time.Date(2020, 2, i,1, 1, 1,1, loc)//time.Now()
+		var messagesFromToday []Message
+		for _, group := range groups.Groups {
+			if "7342563" == (group.GroupId) {
+				fmt.Println(group.Name)
+				messagesFromToday = getAllMessages(group, accessToken, currentTime)
+			}
 		}
+		mostFavoritedMessage := getFavoriteMessage(&messagesFromToday)
+		postMessage(mostFavoritedMessage, accessToken, botId)
+		fmt.Println(i)
 	}
-	mostFavoritedMessage := getFavoriteMessage(&messagesFromToday)
-	postMessage(mostFavoritedMessage, accessToken, botId)
-	fmt.Println(messagesFromToday)
+
+	//fmt.Println(messagesFromToday)
 
 
 }
