@@ -9,7 +9,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -37,13 +36,21 @@ type Event struct {
 	Type		string		`json:"type"`
 }
 
+type Attachment struct {
+	Type 	string		`json:"type"`
+	Url 	string		`json:"url"`
+}
+
+
 type Message struct {
-	Name			 string		`json:"name"`
-	Text			 string		`json:"text"`
-	MessageId		 string		`json:"id"`
-	FavoriteBy		 []string	`json:"favorited_by"`
-	TimeSent    	 int64       `json:"created_at"`
-	Event			 Event		`json:"event"`
+	Name			 string			`json:"name"`
+	Text			 string			`json:"text"`
+	MessageId		 string			`json:"id"`
+	FavoriteBy		 []string		`json:"favorited_by"`
+	TimeSent    	 int64      	`json:"created_at"`
+	Event			 Event			`json:"event"`
+	Attachments 	[]Attachment	`json:"attachments"`
+
 	numMembersAtTime int
 }
 
@@ -128,11 +135,8 @@ func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, m
 		if messageYear == year {
 			continue
 		}
-		if messageMonth == month && messageDay == day {
-			if message.isPopular() {
-				*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
-
-			}
+		if messageMonth == month && messageDay == day && message.isPopular()  {
+			*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
 		}
 	}
 
@@ -173,7 +177,9 @@ func getPopularMessagesFromDate(group Group, accessToken string, date time.Time)
 }
 
 func (message Message) isPopular() bool{
-
+	if strings.Contains(strings.ToLower(message.Text), "like this") {
+		return false
+	}
 	if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime - 1) {
 		return false
 	} else if message.numMembersAtTime >= 17 && message.numLikes() < 8 {
@@ -186,10 +192,17 @@ func (message Message) isPopular() bool{
 }
 
 func postMessage(message Message, accessToken string, botId string) {
+
+	messageDate := time.Unix(message.TimeSent, 0)
+	messageYear, messageMonth, messageDay := messageDate.Date()
 	url := fmt.Sprintf("%s/bots/post", urlBase)
+	text := fmt.Sprintf("\"%s\" \n\n- %s | %d/%d/%d | ❤️x%d", message.Text, message.Name, int(messageMonth), messageDay, messageYear%1000, message.numLikes())
 	params := map[string]interface{}{
 		"bot_id": botId,
-		"text":  message.Text,
+		"text":  text,
+	}
+	if len(message.Attachments) > 0 {
+		params["picture_url"] = message.Attachments[0].Url
 	}
 	bytesRepresentation, err := json.Marshal(params)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
@@ -215,10 +228,9 @@ func getMessageToPost(messages* []Message) Message {
 	source := rand.NewSource(time.Now().UnixNano())
 	rng := rand.New(source)
 	randNum := rng.Float32() * total
-	for i, message := range(*messages){
+	for _, message := range(*messages){
 		randNum -= message.percentageLikes()
 		if randNum <= 0 {
-			fmt.Println("INDEX IS", i, "LENGTH IS", len(*messages))
 			return message
 		}
 	}
@@ -229,26 +241,27 @@ func getMessageToPost(messages* []Message) Message {
 
 func main() {
 	gotenv.Load()
-	accessToken := os.Getenv("ACCESS_TOKEN")
-	botId := os.Getenv("BOT_ID")
+	//accessToken := os.Getenv("ACCESS_TOKEN")
+	//botId := os.Getenv("BOT_ID")
+	//
+	//groups := getGroups(accessToken)
+	//for i:=1; i<31; i++ {
+	//	loc, _ := time.LoadLocation("EST")
+	//	currentTime := time.Date(2020, 11, i,1, 1, 1,1, loc)//time.Now()
+	//	var popularMessagesFromToday []Message
+	//	for _, group := range groups.Groups {
+	//		if "7342563" == (group.GroupId) {
+	//			fmt.Println(group.Name)
+	//			popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
+	//		}
+	//	}
+	//	messageToPost := getMessageToPost(&popularMessagesFromToday)
+	//	if messageToPost.Text != "" {
+	//		postMessage(messageToPost, accessToken, botId)
+	//	}
+	//}
 
-	groups := getGroups(accessToken)
-	for i:=1; i<31; i++ {
-		loc, _ := time.LoadLocation("EST")
-		currentTime := time.Date(2020, 2, i,1, 1, 1,1, loc)//time.Now()
-		var popularMessagesFromToday []Message
-		for _, group := range groups.Groups {
-			if "20660885" == (group.GroupId) {
-				fmt.Println(group.Name)
-				popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
-			}
-		}
-		messageToPost := getMessageToPost(&popularMessagesFromToday)
-		postMessage(messageToPost, accessToken, botId)
-	}
-
-	//fmt.Println(messagesFromToday)
-
+	AddBot(1, "d")
 
 }
 

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a7aed90-6424-4b25-9650-fcaa01ca2268" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Hello.go" beforeDir="false" afterPath="$PROJECT_DIR$/Hello.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/DynamoConnection.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Hello.go" beforeDir="false" afterPath="$PROJECT_DIR$/main/main.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,23 +14,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Hello.go">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="217" column="14" lean-forward="true" selection-start-line="217" selection-start-column="14" selection-end-line="217" selection-end-column="14" />
+            <state relative-caret-position="403">
+              <caret line="264" column="4" selection-start-line="264" selection-start-column="4" selection-end-line="264" selection-end-column="4" />
               <folding>
-                <element signature="e#14#109#0" expanded="true" />
+                <element signature="e#14#192#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/.env">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/main/boom.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="33" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
+            <state relative-caret-position="157">
+              <caret line="24" column="5" lean-forward="true" selection-start-line="24" selection-start-column="5" selection-end-line="24" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/DynamoConnection.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="11" selection-end-line="82" />
             </state>
           </provider>
         </entry>
@@ -49,6 +60,11 @@
       <find>numMembersAtTime</find>
       <find>getFavorite</find>
       <find>print</find>
+      <find>bot</find>
+      <find>getPopular</find>
+      <find>addMess</find>
+      <find>post</find>
+      <find>postMess</find>
     </findStrings>
   </component>
   <component name="GOROOT" path="/usr/local/Cellar/go/1.12/libexec" />
@@ -59,7 +75,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/.env" />
+        <option value="$PROJECT_DIR$/DynamoConnection.go" />
         <option value="$PROJECT_DIR$/Hello.go" />
+        <option value="$PROJECT_DIR$/main/boom.go" />
+        <option value="$PROJECT_DIR$/main/main.go" />
+        <option value="$PROJECT_DIR$/main/main.go" />
       </list>
     </option>
   </component>
@@ -78,12 +98,13 @@
         <subPane>
           <expand>
             <path>
-              <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="groupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
               <item name="GroupMeChatBot" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="groupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GroupMeChatBot" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -99,6 +120,12 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/main" />
+      <recent name="$PROJECT_DIR$/DynamoConnection" />
+    </key>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -111,19 +138,62 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
-    <configuration name="go build Hello.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Go Build.go build main">
+    <configuration name="go build DynamoConnection.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GroupMeChatBot" />
-      <working_directory value="$PROJECT_DIR$/" />
+      <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/Hello.go" />
+      <filePath value="$PROJECT_DIR$/DynamoConnection.go" />
       <package value="GroupMeChatBot" />
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
     </configuration>
+    <configuration name="go build hello" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="GroupMeChatBot" />
+      <working_directory value="$PROJECT_DIR$" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$/main/main.go" />
+      <package value="GroupMeChatBot/main" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build main" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true">
+      <module name="GroupMeChatBot" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$/main/main.go" />
+      <package value="GroupMeChatBot" />
+      <directory value="$PROJECT_DIR$/main" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build DynamoConnection.go" />
+      <item itemvalue="Go Build.go build main" />
+      <item itemvalue="Go Build.go build hello" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build Hello.go" />
+        <item itemvalue="Go Build.go build main" />
+        <item itemvalue="Go Build.go build hello" />
+        <item itemvalue="Go Build.go build DynamoConnection.go" />
       </list>
     </recent_temporary>
   </component>
@@ -138,13 +208,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24606581" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2532189" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.27349398" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" weight="0.27349398" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -152,8 +223,8 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.32891566" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.32891566" />
-      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49928468" weight="0.32891566" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5007153" side_tool="true" weight="0.27349398" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -163,17 +234,8 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/Hello.go</url>
-          <line>211</line>
-          <properties />
-          <option name="timeStamp" value="52" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/Cellar/go/1.12/libexec/src/runtime/proc.go">
@@ -204,13 +266,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Hello.go">
+    <entry file="file://$PROJECT_DIR$/go.mod">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="217" column="14" lean-forward="true" selection-start-line="217" selection-start-column="14" selection-end-line="217" selection-end-column="14" />
+        <state relative-caret-position="90">
+          <caret line="6" column="37" selection-start-line="6" selection-start-column="37" selection-end-line="6" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="403">
+          <caret line="264" column="4" selection-start-line="264" selection-start-column="4" selection-end-line="264" selection-end-column="4" />
           <folding>
-            <element signature="e#14#109#0" expanded="true" />
+            <element signature="e#14#192#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DynamoConnection.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="11" selection-end-line="82" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main/boom.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="24" column="5" lean-forward="true" selection-start-line="24" selection-start-column="5" selection-end-line="24" selection-end-column="5" />
         </state>
       </provider>
     </entry>
