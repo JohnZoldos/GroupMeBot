@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,12 +10,28 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const urlBase  = "https://api.groupme.com/v3"
+const botName  = "MemsBot"
+const aviLink  = "https://i.groupme.com/1024x1024.png.415633b4d1264b85859f977673e8438c"
+
+type BotInfo struct {
+	BotId	string 	`json:"bot_id"`
+}
+
+type Bot struct {
+	Info	BotInfo 	`json:"bot"`
+}
+
+type BotCreationResponse struct{
+	Response	Bot		`json:"response"`
+}
 
 type Group struct {
 	Id		string			`json:"id"`
@@ -70,8 +87,8 @@ type MessagesResponse struct {
 	MessagesMap Messages `json:"response"`
 }
 
-func getGroups(accessToken string) Groups{
-	resp, err := http.Get(urlBase + "/groups?token=" + accessToken)
+func getPageOfGroups(accessToken string, page int) Groups{
+	resp, err := http.Get(fmt.Sprintf("%s/groups?token=%s&page=%d", urlBase, accessToken, page))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -239,16 +256,74 @@ func getMessageToPost(messages* []Message) Message {
 
 }
 
+func getAllGroups(accessToken string) []Group {
+	var allGroups []Group
+	for i:=1; ;i++ {
+		page := getPageOfGroups(accessToken, i)
+		if len(page.Groups) == 0 {
+			break
+		}
+		allGroups = append(allGroups, page.Groups...)
+	}
+	return allGroups
+}
+
+func createBot(groupId, accessToken string) string{
+	url := fmt.Sprintf("%s/bots?token=%s", urlBase, accessToken)
+	params := map[string]interface{}{
+		"bot": map[string]interface{} {
+			"name": botName,
+			"group_id":  groupId,
+			"avatar_url": aviLink,
+		},
+	}
+	bytesRepresentation, err := json.Marshal(params)
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("D")
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	bot := BotCreationResponse{}
+	err = json.Unmarshal(body, &bot)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return bot.Response.Info.BotId
+
+}
+
+func deleteBot(botId, accessToken string) {
+	url := fmt.Sprintf("%s/bots/destroy?token=%s", urlBase, accessToken)
+	params := map[string]interface{}{
+		"bot_id": botId,
+	}
+	bytesRepresentation, err := json.Marshal(params)
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println(resp)
+}
+
+
 func main() {
 	gotenv.Load()
-	//accessToken := os.Getenv("ACCESS_TOKEN")
+	accessToken := os.Getenv("ACCESS_TOKEN")
+	groups := getAllGroups(accessToken)
 	//botId := os.Getenv("BOT_ID")
 	//
-	//groups := getGroups(accessToken)
+	//groups := getPageOfGroups(accessToken)
 	//for i:=1; i<31; i++ {
 	//	loc, _ := time.LoadLocation("EST")
 	//	currentTime := time.Date(2020, 11, i,1, 1, 1,1, loc)//time.Now()
-	//	var popularMessagesFromToday []Message
+	//	var popularMessagesFromToday []Message0
 	//	for _, group := range groups.Groups {
 	//		if "7342563" == (group.GroupId) {
 	//			fmt.Println(group.Name)
@@ -260,9 +335,39 @@ func main() {
 	//		postMessage(messageToPost, accessToken, botId)
 	//	}
 	//}
+	//AddBot(1, "d")
+	//GetBotsForGroup(1)
+	fmt.Println("\n\nHere are all the groups you are a member of. Enter the number corresponding to the group you want to add a bot to: ")
+	fmt.Println("-------------------------------------------------------------------------------------------------------------------\n")
+	for i, group := range(groups) {
+		fmt.Println(fmt.Sprintf("[%d] %s", i, group.Name))
+	}
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	selectedGroup := scanner.Text()
+	if scanner.Err() != nil {
+		fmt.Println(scanner.Err())
+	}
+	var groupIndex int
+	if index, err := strconv.Atoi(selectedGroup); err == nil {
+		groupIndex = index
+		fmt.Printf("%q looks like a number.\n", selectedGroup)
+	} else {
+		fmt.Println(err)
+	}
+	groupId := groups[groupIndex].GroupId
+	botId := GetBotForGroup(groupId)
 
-	AddBot(1, "d")
 
+	if botId == "" {
+		botId = createBot(groupId, accessToken)
+		AddBot(groupId, botId)
+	} else {
+		fmt.Println("That group already has this bot.")
+		removeBot(groupId)
+		deleteBot(botId, accessToken)
+	}
 }
 
-//ensure timezone is set correctly, if this were running on an EC2 you might need to set the timezone manually
+
+
