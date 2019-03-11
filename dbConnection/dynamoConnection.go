@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
+	"log"
 	"os"
 )
 
@@ -22,10 +23,13 @@ var dynamoClient *dynamodb.DynamoDB
 const tableName = "GroupMeBot"
 
 func startSession() {
+	log.Print("Dynamo session started.")
 	session, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
 	)
 	if err != nil {
+		log.Print("Error reached when starting dynamo session")
+		log.Print(err)
 		panic(err)
 	}
 	dynamoClient = dynamodb.New(session)
@@ -34,9 +38,8 @@ func startSession() {
 
 func AddBot(groupId string, botId string) {
 	if dynamoClient == nil {
-		startSession() //should i shut it down manually?
+		startSession() //should i shut it down manually? Optional, but recommended. Probably doesn't matter if using lambda?
 	}
-
 
 	item := Item{
 		Group_id: groupId,
@@ -83,6 +86,7 @@ func AddBot(groupId string, botId string) {
 
 
 func GetBotForGroup(groupId string) string {
+	fmt.Println("Getting bot_id for group " + groupId)
 	item := Item{}
 	result := GetAllItems()
 	for _, i := range result.Items {
@@ -104,7 +108,7 @@ func GetAllItems() (*dynamodb.ScanOutput) {
 	if dynamoClient == nil {
 		startSession() //should i shut it down manually?
 	}
-
+	log.Print("Getting all items from db.")
 	proj := expression.NamesList(expression.Name("group_id"), expression.Name("bot_id"))
 	expr, _ := expression.NewBuilder().WithProjection(proj).Build()
 	params := &dynamodb.ScanInput{
@@ -117,47 +121,15 @@ func GetAllItems() (*dynamodb.ScanOutput) {
 	// Make the DynamoDB Query API call
 	result, err  := dynamoClient.Scan(params)
 	if err != nil {
-		fmt.Println(err)
+		log.Print("Error reached when querying db. Exiting.")
+		log.Print(err)
 		os.Exit(1)
 	}
+
+
+	log.Print("Got all items from db.")
 	return result
 }
-
-func GetAllBots(groupId string) string {
-	if dynamoClient == nil {
-		startSession() //should i shut it down manually?
-	}
-	//filt := expression.Name("group_id").Equal(expression.Value(groupId))
-
-
-	// Get back the title, year, and rating
-	proj := expression.NamesList(expression.Name("group_id"), expression.Name("bot_id"))
-
-	expr, err := expression.NewBuilder().WithProjection(proj).Build()
-
-	params := &dynamodb.ScanInput{
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		FilterExpression:          expr.Filter(),
-		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(tableName),
-	}
-
-	// Make the DynamoDB Query API call
-	result, err := dynamoClient.Scan(params)
-	item := Item{}
-	for _, i := range result.Items {
-		err = dynamodbattribute.UnmarshalMap(i, &item)
-		if err != nil {
-			fmt.Println("Got error unmarshalling:")
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-	}
-	return item.Bot_id
-
-}
-
 
 
 func RemoveBot(groupId string) {
