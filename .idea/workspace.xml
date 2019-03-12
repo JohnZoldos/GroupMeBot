@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a7aed90-6424-4b25-9650-fcaa01ca2268" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dbConnection/dynamoConnection.go" beforeDir="false" afterPath="$PROJECT_DIR$/dbConnection/dynamoConnection.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main" beforeDir="false" afterPath="$PROJECT_DIR$/main" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
@@ -19,10 +16,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="419">
-              <caret line="497" lean-forward="true" selection-start-line="497" selection-end-line="497" />
+            <state relative-caret-position="197">
+              <caret line="451" column="137" selection-start-line="451" selection-start-column="137" selection-end-line="451" selection-end-column="137" />
               <folding>
-                <element signature="e#14#290#0" expanded="true" />
+                <element signature="e#14#337#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -31,7 +28,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="353">
+            <state relative-caret-position="435">
               <caret line="29" column="21" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
               <folding>
                 <element signature="e#14#213#0" expanded="true" />
@@ -43,8 +40,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dbConnection/dynamoConnection.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1636">
-              <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+            <state relative-caret-position="210">
+              <caret line="129" column="7" selection-start-line="129" selection-start-column="7" selection-end-line="129" selection-end-column="7" />
               <folding>
                 <element signature="e#14#318#0" expanded="true" />
               </folding>
@@ -63,7 +60,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>unmarshal</find>
       <find>now</find>
       <find>fmt.Println</find>
       <find>removeBot</find>
@@ -93,6 +89,7 @@
       <find>to</find>
       <find>menu</find>
       <find>args</find>
+      <find>postMessage</find>
     </findStrings>
   </component>
   <component name="GOROOT" path="/usr/local/Cellar/go/1.12/libexec" />
@@ -284,13 +281,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26037195" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49928468" visible="true" weight="0.27349398" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" weight="0.27349398" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -298,7 +296,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.32891566" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49928468" weight="0.32891566" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.49928468" visible="true" weight="0.32891566" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5007153" side_tool="true" weight="0.27349398" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -357,8 +355,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dbConnection/dynamoConnection.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1636">
-          <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+        <state relative-caret-position="210">
+          <caret line="129" column="7" selection-start-line="129" selection-start-column="7" selection-end-line="129" selection-end-column="7" />
           <folding>
             <element signature="e#14#318#0" expanded="true" />
           </folding>
@@ -367,7 +365,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
+        <state relative-caret-position="435">
           <caret line="29" column="21" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
           <folding>
             <element signature="e#14#213#0" expanded="true" />
@@ -384,10 +382,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="419">
-          <caret line="497" lean-forward="true" selection-start-line="497" selection-end-line="497" />
+        <state relative-caret-position="197">
+          <caret line="451" column="137" selection-start-line="451" selection-start-column="137" selection-end-line="451" selection-end-column="137" />
           <folding>
-            <element signature="e#14#290#0" expanded="true" />
+            <element signature="e#14#337#0" expanded="true" />
           </folding>
         </state>
       </provider>

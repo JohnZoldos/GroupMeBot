@@ -449,7 +449,7 @@ func sendMessages(groups []Group, accessToken string) {
 		popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
 		log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
 		messageToPost := getMessageToPost(&popularMessagesFromToday)
-		if messageToPost.Text != "" {
+		if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
 			log.Print(fmt.Sprintf("Posting message: '%s' by %s" , messageToPost.Text, messageToPost.Name))
 			postMessage(messageToPost, accessToken, item.Bot_id)
 		}
