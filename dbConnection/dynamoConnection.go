@@ -12,10 +12,10 @@ import (
 	"os"
 )
 
-
 type Item struct {
-	Group_id  string       `json:"group_id"`
-	Bot_id	  string    `json:"bot_id"`
+	GroupId       string `json:"group_id"`
+	BotId         string `json:"bot_id"`
+	LastMessageId string `json:"last_message_id"`
 }
 
 var dynamoClient *dynamodb.DynamoDB
@@ -42,8 +42,8 @@ func AddBot(groupId string, botId string) {
 	}
 
 	item := Item{
-		Group_id: groupId,
-		Bot_id: botId,
+		GroupId: groupId,
+		BotId:   botId,
 	}
 
 	attributes, err := dynamodbattribute.MarshalMap(item)
@@ -52,7 +52,7 @@ func AddBot(groupId string, botId string) {
 	}
 
 	input := &dynamodb.PutItemInput{
-		Item: attributes,
+		Item:      attributes,
 		TableName: aws.String(tableName),
 	}
 
@@ -84,7 +84,6 @@ func AddBot(groupId string, botId string) {
 	}
 }
 
-
 func GetBotForGroup(groupId string) string {
 	fmt.Println("Getting bot_id for group " + groupId)
 	item := Item{}
@@ -96,15 +95,15 @@ func GetBotForGroup(groupId string) string {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		if item.Group_id == groupId {
-			return item.Bot_id
+		if item.GroupId == groupId {
+			return item.BotId
 		}
 	}
 	return ""
 
 }
 
-func GetAllItems() (*dynamodb.ScanOutput) {
+func GetAllItems() *dynamodb.ScanOutput {
 	if dynamoClient == nil {
 		startSession() //should i shut it down manually?
 	}
@@ -119,18 +118,16 @@ func GetAllItems() (*dynamodb.ScanOutput) {
 		TableName:                 aws.String(tableName),
 	}
 	// Make the DynamoDB Query API call
-	result, err  := dynamoClient.Scan(params)
+	result, err := dynamoClient.Scan(params)
 	if err != nil {
 		log.Print("Error reached when querying db. Exiting.")
 		log.Print(err)
 		os.Exit(1)
 	}
 
-
 	log.Print("Got all items from db.")
 	return result
 }
-
 
 func RemoveBot(groupId string) {
 	if dynamoClient == nil {
@@ -153,3 +150,45 @@ func RemoveBot(groupId string) {
 		return
 	}
 }
+
+//func UpdateLastMessageId() {
+//	info := Item{
+//		LastMessageId: 0.5,
+//	}
+//
+//	item := Item{
+//		Year:  2015,
+//		Title: "The Big New Movie",
+//	}
+//
+//	expr, err := dynamodbattribute.MarshalMap(info)
+//	if err != nil {
+//		fmt.Println("Got error marshalling info:")
+//		fmt.Println(err.Error())
+//		os.Exit(1)
+//	}
+//
+//	key, err := dynamodbattribute.MarshalMap(item)
+//	if err != nil {
+//		fmt.Println("Got error marshalling item:")
+//		fmt.Println(err.Error())
+//		os.Exit(1)
+//	}
+//
+//	// Update item in table Movies
+//	input := &dynamodb.UpdateItemInput{
+//		ExpressionAttributeValues: expr,
+//		TableName:                 aws.String("Movies"),
+//		Key:                       key,
+//		ReturnValues:              aws.String("UPDATED_NEW"),
+//		UpdateExpression:          aws.String("set info.rating = :r"),
+//	}
+//
+//	_, err = svc.UpdateItem(input)
+//	if err != nil {
+//		fmt.Println(err.Error())
+//		return
+//	}
+//
+//	fmt.Println("Successfully updated 'The Big New Movie' (2015) rating to 0.5")
+//}
