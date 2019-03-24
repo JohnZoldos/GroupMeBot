@@ -21,62 +21,60 @@ import (
 	"time"
 )
 
-const urlBase  = "https://api.groupme.com/v3"
-const botName  = "MemsBot"
-const aviLink  = "https://i.groupme.com/1024x1024.png.415633b4d1264b85859f977673e8438c"
-const location  = "EST"
-
+const urlBase = "https://api.groupme.com/v3"
+const botName = "MemsBot"
+const aviLink = "https://i.groupme.com/1024x1024.png.415633b4d1264b85859f977673e8438c"
+const location = "EST"
 
 type BotInfo struct {
-	BotId	string 	`json:"bot_id"`
+	BotId string `json:"bot_id"`
 }
 
 type Bot struct {
-	Info	BotInfo 	`json:"bot"`
+	Info BotInfo `json:"bot"`
 }
 
-type BotCreationResponse struct{
-	Response	Bot		`json:"response"`
+type BotCreationResponse struct {
+	Response Bot `json:"response"`
 }
 
 type Group struct {
-	Id		string			`json:"id"`
-	GroupId	string			`json:"group_id"`
-	Name	string			`json:"name"`
-	Members []interface{}   `json:"members"`
+	Id      string        `json:"id"`
+	GroupId string        `json:"group_id"`
+	Name    string        `json:"name"`
+	Members []interface{} `json:"members"`
 }
 
 func (group Group) getNumMembers() int {
 	return len(group.Members)
 }
 
-type OneGroup struct{
-	Group	Group	`json:"response"`
+type OneGroup struct {
+	Group Group `json:"response"`
 }
 
-
-type Groups struct{
-	Groups	[]Group	`json:"response"`
+type Groups struct {
+	Groups []Group `json:"response"`
 }
 
 type Event struct {
-	Type		string		`json:"type"`
+	Type string `json:"type"`
 }
 
 type Attachment struct {
-	Type 	string		`json:"type"`
-	Url 	string		`json:"url"`
+	Type string `json:"type"`
+	Url  string `json:"url"`
 }
 
-
 type Message struct {
-	Name			 string			`json:"name"`
-	Text			 string			`json:"text"`
-	MessageId		 string			`json:"id"`
-	FavoriteBy		 []string		`json:"favorited_by"`
-	TimeSent    	 int64      	`json:"created_at"`
-	Event			 Event			`json:"event"`
-	Attachments 	[]Attachment	`json:"attachments"`
+	Name        string       `json:"name"`
+	Text        string       `json:"text"`
+	MessageId   string       `json:"id"`
+	FavoriteBy  []string     `json:"favorited_by"`
+	TimeSent    int64        `json:"created_at"`
+	Event       Event        `json:"event"`
+	Attachments []Attachment `json:"attachments"`
+	SenderType  string       `json:"sender_type"`
 
 	numMembersAtTime int
 }
@@ -86,7 +84,7 @@ func (message Message) numLikes() int {
 }
 
 func (message Message) percentageLikes() float32 {
-	return float32(message.numLikes())/float32(message.numMembersAtTime)
+	return float32(message.numLikes()) / float32(message.numMembersAtTime)
 }
 
 type Messages struct {
@@ -97,7 +95,7 @@ type MessagesResponse struct {
 	MessagesMap Messages `json:"response"`
 }
 
-func getPageOfGroups(accessToken string, page int) Groups{
+func getPageOfGroups(accessToken string, page int) Groups {
 	log.Print("Getting page of groups.")
 	resp, err := http.Get(fmt.Sprintf("%s/groups?token=%s&page=%d", urlBase, accessToken, page))
 	if err != nil {
@@ -121,7 +119,6 @@ func getPageOfGroups(accessToken string, page int) Groups{
 	return groups
 }
 
-
 func getMessageBatch(groupId string, accessToken string, before_id string) ([]byte, error) {
 	numMessages := 100
 	url := fmt.Sprintf("%s/groups/%s/messages?token=%s&limit=%d", urlBase, groupId, accessToken, numMessages)
@@ -135,6 +132,7 @@ func getMessageBatch(groupId string, accessToken string, before_id string) ([]by
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
 	if err != nil {
 		log.Print("Fatal error reached when reading message batch.")
 		log.Fatalln(err)
@@ -156,9 +154,9 @@ func countUsersAddedOrRemoved(str string) int {
 	return count
 }
 
-func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, messages* []*Message, popularMessagesFromDate * []Message) {
-	for _, message := range(*messages) {
-		if strings.Contains(message.Event.Type, "bot") {
+func addMessagesFromDate(numMembers *int, year int, month time.Month, day int, messages *[]*Message, popularMessagesFromDate *[]Message) {
+	for _, message := range *messages {
+		if strings.Contains(message.Event.Type, "bot") || message.SenderType == "bot" {
 			continue
 		}
 		if message.Name == "GroupMe" && strings.Contains(message.Text, "added") {
@@ -174,7 +172,7 @@ func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, m
 		if messageYear == year {
 			continue
 		}
-		if messageMonth == month && messageDay == day && message.isPopular()  {
+		if messageMonth == month && messageDay == day && message.isPopular() {
 			*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
 			log.Print(fmt.Sprintf("Adding message to popular messages from today. Its time is %d", message.TimeSent))
 			log.Print(fmt.Sprintf("Message's month is %d and its day is %d", messageMonth, messageDay))
@@ -183,17 +181,17 @@ func addMessagesFromDate(numMembers* int, year int, month time.Month, day int, m
 
 }
 
-func getPopularMessagesFromDate(group Group, accessToken string, date time.Time) []Message{
+func getPopularMessagesFromDate(group Group, accessToken string, date time.Time, day int) []Message {
 	groupId := group.GroupId
 	numMembers := group.getNumMembers()
-	year, month, day := date.Date()
+	year, month, _ := date.Date()
 
 	beforeId := ""
 	var allMessages []Message
 	var popularMessagesFromDate []Message
 	for {
 		body, err := getMessageBatch(groupId, accessToken, beforeId)
-		if err != nil || len(body) == 0{
+		if err != nil || len(body) == 0 {
 			break
 		}
 		messageResponse := MessagesResponse{}
@@ -207,42 +205,48 @@ func getPopularMessagesFromDate(group Group, accessToken string, date time.Time)
 		if len(messagesBatch) == 0 {
 			break
 		}
-		lastMessage := messagesBatch[len(messagesBatch) - 1]
+		lastMessage := messagesBatch[len(messagesBatch)-1]
 		beforeId = lastMessage.MessageId
 
-		for _, message := range(messagesBatch) {
+		for _, message := range messagesBatch {
 			allMessages = append(allMessages, *message)
 		}
 	}
 
-
 	return popularMessagesFromDate
 }
 
-func (message Message) isPopular() bool{
+func (message Message) isPopular() bool {
 	if strings.Contains(strings.ToLower(message.Text), "like this") {
 		return false
 	}
-	if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime - 1) {
+	if message.numMembersAtTime <= 5 && (message.numLikes() < message.numMembersAtTime-1) {
 		return false
 	} else if message.numMembersAtTime >= 17 && message.numLikes() < 8 {
 		return false
-	} else if message.numMembersAtTime > 5 && message.numMembersAtTime < 17 && message.numLikes() < (4 + (message.numMembersAtTime - 5)/3) {
+	} else if message.numMembersAtTime > 5 && message.numMembersAtTime < 17 && message.numLikes() < (4+(message.numMembersAtTime-5)/3) {
 		return false
 	}
 	return true
 
 }
 
-func postMessage(message Message, accessToken string, botId string) {
+func postMessage(message Message, botId string) {
 
 	messageDate := time.Unix(message.TimeSent, 0)
 	messageYear, messageMonth, messageDay := messageDate.Date()
 	url := fmt.Sprintf("%s/bots/post", urlBase)
-	text := fmt.Sprintf("\"%s\" \n\n- %s | %d/%d/%d | ❤️x%d", message.Text, message.Name, int(messageMonth), messageDay, messageYear%1000, message.numLikes())
+	messageText := fmt.Sprintf("\"%s\"", message.Text)
+	if len(messageText) == 2 {
+		messageText = ""
+	}
+	text := fmt.Sprintf("%s \n\n- %s | %d/%d/%d | ❤️x%d", messageText, message.Name, int(messageMonth), messageDay, messageYear%1000, message.numLikes())
+	if text == "\"\"" {
+		text = ""
+	}
 	params := map[string]interface{}{
 		"bot_id": botId,
-		"text":  text,
+		"text":   text,
 	}
 	if len(message.Attachments) > 0 {
 		params["picture_url"] = message.Attachments[0].Url
@@ -258,8 +262,8 @@ func postMessage(message Message, accessToken string, botId string) {
 
 }
 
-func getMessageToPost(messages* []Message) Message {
-	if len(*messages) == 0{
+func getMessageToPost(messages *[]Message) Message {
+	if len(*messages) == 0 {
 		return Message{}
 	}
 	sort.Slice(*messages, func(i, j int) bool {
@@ -267,13 +271,13 @@ func getMessageToPost(messages* []Message) Message {
 	})
 
 	var total float32 = 0.0
-	for _, message := range(*messages) {
+	for _, message := range *messages {
 		total += message.percentageLikes()
 	}
 	source := rand.NewSource(time.Now().UnixNano())
 	rng := rand.New(source)
 	randNum := rng.Float32() * total
-	for _, message := range(*messages){
+	for _, message := range *messages {
 		randNum -= message.percentageLikes()
 		if randNum <= 0 {
 			return message
@@ -286,7 +290,7 @@ func getMessageToPost(messages* []Message) Message {
 
 func getAllGroups(accessToken string) []Group {
 	var allGroups []Group
-	for i:=1; ;i++ {
+	for i := 1; ; i++ {
 		page := getPageOfGroups(accessToken, i)
 		if len(page.Groups) == 0 {
 			break
@@ -296,12 +300,12 @@ func getAllGroups(accessToken string) []Group {
 	return allGroups
 }
 
-func createBot(groupId, accessToken string) string{
+func createBot(groupId, accessToken string) string {
 	url := fmt.Sprintf("%s/bots?token=%s", urlBase, accessToken)
 	params := map[string]interface{}{
-		"bot": map[string]interface{} {
-			"name": botName,
-			"group_id":  groupId,
+		"bot": map[string]interface{}{
+			"name":       botName,
+			"group_id":   groupId,
 			"avatar_url": aviLink,
 		},
 	}
@@ -338,7 +342,6 @@ func deleteBot(botId, accessToken string) {
 	defer resp.Body.Close()
 }
 
-
 func handler() {
 	gotenv.Load()
 	accessToken := os.Getenv("ACCESS_TOKEN")
@@ -353,7 +356,6 @@ func handler() {
 		cloudwatchTrigger.UpdateTrigger()
 	}
 }
-
 
 func menu(groups []Group, accessToken string) {
 	fmt.Println("Make a selection:")
@@ -398,10 +400,9 @@ func botDeletionMenu(groups []Group, accessToken string) {
 	}
 }
 
-
 func menuHelper(groups []Group) int {
 	fmt.Println("-------------------------------------------------------------------------------------------------------------------\n")
-	for i, group := range (groups) {
+	for i, group := range groups {
 		fmt.Println(fmt.Sprintf("[%d] %s", i, group.Name))
 	}
 	scanner := bufio.NewScanner(os.Stdin)
@@ -419,7 +420,6 @@ func menuHelper(groups []Group) int {
 	return groupIndex
 }
 
-
 func sendMessages(groups []Group, accessToken string) {
 	log.Print("Initiating...")
 	item := dbConnection.Item{}
@@ -430,28 +430,32 @@ func sendMessages(groups []Group, accessToken string) {
 	timeAndDate := fmt.Sprintf("Current time is %d:%d and the date is %d/%d", hour, min, month, day)
 	log.Print(timeAndDate)
 
+	for i := 23; i < 24; i++ {
+		day = i
+		log.Print(fmt.Sprintf("Location is set as: %s", currentTime.Location().String()))
+		log.Print(fmt.Sprintf("Local is: %s", currentTime.Local().String()))
 
-	log.Print(fmt.Sprintf("Location is set as: %s", currentTime.Location().String()))
-	log.Print(fmt.Sprintf("Local is: %s", currentTime.Local().String()))
+		allItemsFromDatabase := dbConnection.GetAllItems().Items
+		log.Print(fmt.Sprintf("%d items found in database", len(allItemsFromDatabase)))
+		for _, i := range allItemsFromDatabase {
+			err := dynamodbattribute.UnmarshalMap(i, &item)
+			if err != nil {
+				log.Print("Got error unmarshalling. System will exit.")
+				log.Print(err.Error())
+				os.Exit(1)
+			}
+			var popularMessagesFromToday []Message
+			group := getGroup(item.GroupId, accessToken)
+			log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupId))
+			popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime, day)
+			log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
+			messageToPost := getMessageToPost(&popularMessagesFromToday)
+			if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
+				log.Print(fmt.Sprintf("Posting message: '%s' by %s", messageToPost.Text, messageToPost.Name))
+				fmt.Println("COLDPLAY:", group.Name, day, messageToPost.Text)
+				//postMessage(messageToPost, accessToken, item.BotId)
 
-	allItemsFromDatabase := dbConnection.GetAllItems().Items
-	log.Print(fmt.Sprintf("%d items found in database", len(allItemsFromDatabase)))
-	for _, i := range allItemsFromDatabase {
-		err := dynamodbattribute.UnmarshalMap(i, &item)
-		if err != nil {
-			log.Print("Got error unmarshalling. System will exit.")
-			log.Print(err.Error())
-			os.Exit(1)
-		}
-		var popularMessagesFromToday []Message
-		group := getGroup(item.Group_id, accessToken)
-		log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupId))
-		popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
-		log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
-		messageToPost := getMessageToPost(&popularMessagesFromToday)
-		if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
-			log.Print(fmt.Sprintf("Posting message: '%s' by %s" , messageToPost.Text, messageToPost.Name))
-			postMessage(messageToPost, accessToken, item.Bot_id)
+			}
 		}
 	}
 
@@ -480,7 +484,6 @@ func getGroup(groupId, accessToken string) Group {
 	return group.Group
 }
 
-
 func main() {
 	gotenv.Load()
 	argsWithoutProg := os.Args[1:]
@@ -491,8 +494,7 @@ func main() {
 		log.Print(fmt.Sprintf("Got %d groups.", len(groups)))
 		menu(groups, accessToken)
 	} else {
+		handler()
 		lambda.Start(handler)
 	}
 }
-
-
