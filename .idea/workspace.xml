@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a7aed90-6424-4b25-9650-fcaa01ca2268" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/main" beforeDir="false" afterPath="$PROJECT_DIR$/main" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GroupMeChatBot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/GroupMeChatBot.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,8 +17,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
-              <caret line="451" column="137" selection-start-line="451" selection-start-column="137" selection-end-line="451" selection-end-column="137" />
+            <state relative-caret-position="340">
+              <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
               <folding>
                 <element signature="e#14#337#0" expanded="true" />
               </folding>
@@ -26,12 +27,21 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go">
+        <entry file="file://$PROJECT_DIR$/.env">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="21" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
+            <state>
+              <caret column="53" selection-start-column="13" selection-end-column="53" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/main.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-376">
+              <caret line="135" selection-start-line="135" selection-end-line="135" />
               <folding>
-                <element signature="e#14#213#0" expanded="true" />
+                <element signature="e#14#270#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -40,11 +50,59 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dbConnection/dynamoConnection.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="129" column="7" selection-start-line="129" selection-start-column="7" selection-end-line="129" selection-end-column="7" />
+            <state relative-caret-position="2079">
+              <caret line="158" column="17" lean-forward="true" selection-start-line="158" selection-start-column="17" selection-end-line="158" selection-end-column="17" />
               <folding>
-                <element signature="e#14#318#0" expanded="true" />
+                <marker date="1553389730136" expanded="true" signature="4097:5102" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/dbConnection/dynamoConnection.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-195">
+              <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
+              <folding>
+                <element signature="e#22#333#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/.env">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="12" selection-start-column="12" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../pkg/mod/github.com/aws/aws-lambda-go@v1.9.0/events/apigw.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="6" selection-start-line="6" selection-end-line="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../pkg/mod/github.com/aws/aws-lambda-go@v1.9.0/lambda/entry.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="525">
+              <caret line="40" selection-start-line="40" selection-end-line="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="315">
+              <caret line="29" column="21" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -60,36 +118,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>now</find>
-      <find>fmt.Println</find>
-      <find>removeBot</find>
-      <find>http</find>
-      <find>popularMessagesFromToday</find>
-      <find>postmessage</find>
-      <find>getbotforgroup</find>
-      <find>getAllBots</find>
-      <find>db</find>
-      <find>items</find>
-      <find>defer</find>
-      <find>getAllGroups</find>
-      <find>log.Print</find>
-      <find>found</find>
-      <find>popular</find>
-      <find>getPopularMessagesFromDate</find>
-      <find>loc</find>
-      <find>getPopular</find>
-      <find>nil</find>
+      <find>day</find>
+      <find>hour</find>
+      <find>coldplay:</find>
+      <find>COLDPLAY: The Best Family</find>
+      <find>COLDPLAY: biggest</find>
+      <find>COLDPLAY:</find>
+      <find>COLDPLAY: baby</find>
+      <find>string(</find>
+      <find>unmarshal</find>
+      <find>getmessage</find>
       <find>isPopular</find>
-      <find>rand</find>
-      <find>got</find>
-      <find>time</find>
-      <find>main</find>
-      <find>handler</find>
-      <find>todo</find>
-      <find>to</find>
-      <find>menu</find>
-      <find>args</find>
+      <find>SenderType</find>
+      <find>event</find>
+      <find>getMessage</find>
+      <find>getMessa</find>
+      <find>getMessageBatch</find>
+      <find>attachments</find>
+      <find>messageBatch</find>
+      <find>messagesBatch</find>
+      <find>accessToken</find>
+      <find>lower</find>
+      <find>memsBot</find>
+      <find>dbConnection</find>
       <find>postMessage</find>
+      <find>postMessages</find>
+      <find>fatal erro</find>
+      <find>before_id</find>
+      <find>postmess</find>
+      <find>gro</find>
+      <find>getBotForGroup</find>
     </findStrings>
   </component>
   <component name="GOROOT" path="/usr/local/Cellar/go/1.12/libexec" />
@@ -107,8 +165,12 @@
         <option value="$PROJECT_DIR$/main/main.go" />
         <option value="$PROJECT_DIR$/main/main.go" />
         <option value="$PROJECT_DIR$/main/dbConnection/dynamoConnection.go" />
-        <option value="$PROJECT_DIR$/dbConnection/dynamoConnection.go" />
         <option value="$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go" />
+        <option value="$PROJECT_DIR$/../GroupMeBotCallback/main/form.html" />
+        <option value="$PROJECT_DIR$/../GroupMeBotCallback/dbConnection/dynamoConnection.go" />
+        <option value="$PROJECT_DIR$/../GroupMeBotCallback/main/main.go" />
+        <option value="$PROJECT_DIR$/../GroupMeBotCallback/main.go" />
+        <option value="$PROJECT_DIR$/dbConnection/dynamoConnection.go" />
         <option value="$PROJECT_DIR$/main.go" />
       </list>
     </option>
@@ -128,16 +190,28 @@
           <expand>
             <path>
               <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GroupMeChatBot" type="47feb1d3:ProjectViewModuleNode" />
+            </path>
+            <path>
+              <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GroupMeChatBot" type="47feb1d3:ProjectViewModuleNode" />
               <item name="GroupMeChatBot" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GroupMeChatBot" type="47feb1d3:ProjectViewModuleNode" />
               <item name="GroupMeChatBot" type="462c0819:PsiDirectoryNode" />
-              <item name="cloudwatchTrigger" type="462c0819:PsiDirectoryNode" />
+              <item name="dbConnection" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
-              <item name="GroupMeChatBot" type="462c0819:PsiDirectoryNode" />
+              <item name="GroupMeChatBot" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="GroupMeBotCallback" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GroupMeChatBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GroupMeChatBot" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="GroupMeBotCallback" type="462c0819:PsiDirectoryNode" />
               <item name="dbConnection" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -149,6 +223,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go Application" />
+    <property name="GO_FMT" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$" />
@@ -156,14 +231,16 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/dbConnection" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../GroupMeBotCallback" />
+      <recent name="$PROJECT_DIR$/../GroupMeBotCallback/main" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/main/folder" />
       <recent name="$PROJECT_DIR$/main" />
-      <recent name="$PROJECT_DIR$/DynamoConnection" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../GroupMeBotCallback" />
+      <recent name="$PROJECT_DIR$/dbConnection" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -179,39 +256,12 @@
     </option>
   </component>
   <component name="RunManager" selected="Go Build.go build main.go">
-    <configuration name="go build DynamoConnection.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="GroupMeChatBot" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/DynamoConnection.go" />
-      <package value="GroupMeChatBot" />
-      <directory value="$PROJECT_DIR$/" />
-      <method v="2" />
-    </configuration>
     <configuration name="go build RandomizeTriggerTimer.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GroupMeChatBot" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
       <filePath value="$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go" />
       <package value="hello" />
-      <directory value="$PROJECT_DIR$/" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build hello" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="GroupMeChatBot" />
-      <working_directory value="$PROJECT_DIR$" />
-      <EXTENSION ID="net.ashald.envfile">
-        <option name="IS_ENABLED" value="false" />
-        <option name="IS_SUBST" value="false" />
-        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
-        <option name="IS_IGNORE_MISSING_FILES" value="false" />
-        <ENTRIES>
-          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
-        </ENTRIES>
-      </EXTENSION>
-      <kind value="DIRECTORY" />
-      <filePath value="$PROJECT_DIR$/main/main.go" />
-      <package value="GroupMeChatBot/main" />
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
     </configuration>
@@ -234,10 +284,27 @@
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />
     </configuration>
+    <configuration name="go build main.go (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="GroupMeChatBot" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/../GroupMeBotCallback/main/main.go" />
+      <package value="hello" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build main.go (2)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="GroupMeChatBot" />
+      <working_directory value="$PROJECT_DIR$/../GroupMeBotCallback" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/../GroupMeBotCallback/main.go" />
+      <package value="hello" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GroupMeChatBot" />
       <working_directory value="$PROJECT_DIR$" />
-      <parameters value="1" />
       <EXTENSION ID="net.ashald.envfile">
         <option name="IS_ENABLED" value="false" />
         <option name="IS_SUBST" value="false" />
@@ -254,19 +321,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Go Build.go build DynamoConnection.go" />
       <item itemvalue="Go Build.go build main" />
-      <item itemvalue="Go Build.go build hello" />
       <item itemvalue="Go Build.go build RandomizeTriggerTimer.go" />
       <item itemvalue="Go Build.go build main.go" />
+      <item itemvalue="Go Build.go build main.go (1)" />
+      <item itemvalue="Go Build.go build main.go (2)" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Build.go build main.go (2)" />
+        <item itemvalue="Go Build.go build main.go (1)" />
         <item itemvalue="Go Build.go build RandomizeTriggerTimer.go" />
         <item itemvalue="Go Build.go build main" />
-        <item itemvalue="Go Build.go build hello" />
-        <item itemvalue="Go Build.go build DynamoConnection.go" />
       </list>
     </recent_temporary>
   </component>
@@ -281,11 +348,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26037195" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26752505" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" weight="0.32891566" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" weight="0.27349398" />
@@ -295,8 +362,8 @@
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32891566" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
-      <window_info anchor="bottom" id="Version Control" order="9" weight="0.32891566" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.49928468" visible="true" weight="0.32891566" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="9" visible="true" weight="0.32891566" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49928468" weight="0.32891566" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5007153" side_tool="true" weight="0.27349398" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -307,8 +374,36 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Adding lastMessageId as a field in the dynamo items" />
+    <MESSAGE value="Including sender type to filter out bot messages. Fixed behaviour of posting &quot;&quot; when there's an attachment with no text." />
+    <option name="LAST_COMMIT_MESSAGE" value="Including sender type to filter out bot messages. Fixed behaviour of posting &quot;&quot; when there's an attachment with no text." />
+  </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main.go</url>
+          <line>498</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main.go</url>
+          <line>458</line>
+          <properties />
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main.go</url>
+          <line>143</line>
+          <properties />
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
     <entry file="file:///usr/local/Cellar/go/1.12/libexec/src/runtime/proc.go">
@@ -353,23 +448,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dbConnection/dynamoConnection.go">
+    <entry file="file://$PROJECT_DIR$/../../pkg/mod/github.com/aws/aws-lambda-go@v1.9.0/lambda/entry.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="4" lean-forward="true" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/main/form.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
-          <caret line="129" column="7" selection-start-line="129" selection-start-column="7" selection-end-line="129" selection-end-column="7" />
-          <folding>
-            <element signature="e#14#318#0" expanded="true" />
-          </folding>
+          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../pkg/mod/github.com/aws/aws-lambda-go@v1.9.0/events/apigw.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" selection-start-line="6" selection-end-line="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudwatchTrigger/RandomizeTriggerTimer.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
+        <state relative-caret-position="315">
           <caret line="29" column="21" selection-start-line="29" selection-start-column="21" selection-end-line="29" selection-end-column="21" />
-          <folding>
-            <element signature="e#14#213#0" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/.env">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="12" selection-start-column="12" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -380,10 +497,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-376">
+          <caret line="135" selection-start-line="135" selection-end-line="135" />
+          <folding>
+            <element signature="e#14#270#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../GroupMeBotCallback/dbConnection/dynamoConnection.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-195">
+          <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
+          <folding>
+            <element signature="e#22#333#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dbConnection/dynamoConnection.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2079">
+          <caret line="158" column="17" lean-forward="true" selection-start-line="158" selection-start-column="17" selection-end-line="158" selection-end-column="17" />
+          <folding>
+            <marker date="1553389730136" expanded="true" signature="4097:5102" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="451" column="137" selection-start-line="451" selection-start-column="137" selection-end-line="451" selection-end-column="137" />
+        <state relative-caret-position="340">
+          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
           <folding>
             <element signature="e#14#337#0" expanded="true" />
           </folding>
