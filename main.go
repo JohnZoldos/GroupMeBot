@@ -132,7 +132,6 @@ func getMessageBatch(groupId string, accessToken string, before_id string) ([]by
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
 	if err != nil {
 		log.Print("Fatal error reached when reading message batch.")
 		log.Fatalln(err)
@@ -181,10 +180,10 @@ func addMessagesFromDate(numMembers *int, year int, month time.Month, day int, m
 
 }
 
-func getPopularMessagesFromDate(group Group, accessToken string, date time.Time, day int) []Message {
+func getPopularMessagesFromDate(group Group, accessToken string, date time.Time) []Message {
 	groupId := group.GroupId
 	numMembers := group.getNumMembers()
-	year, month, _ := date.Date()
+	year, month, day := date.Date()
 
 	beforeId := ""
 	var allMessages []Message
@@ -352,7 +351,7 @@ func handler() {
 	if len(argsWithoutProg) > 0 {
 		menu(groups, accessToken)
 	} else {
-		sendMessages(groups, accessToken)
+		sendMessages(accessToken)
 		cloudwatchTrigger.UpdateTrigger()
 	}
 }
@@ -420,7 +419,7 @@ func menuHelper(groups []Group) int {
 	return groupIndex
 }
 
-func sendMessages(groups []Group, accessToken string) {
+func sendMessages(accessToken string) {
 	log.Print("Initiating...")
 	item := dbConnection.Item{}
 	loc, _ := time.LoadLocation(location)
@@ -430,35 +429,29 @@ func sendMessages(groups []Group, accessToken string) {
 	timeAndDate := fmt.Sprintf("Current time is %d:%d and the date is %d/%d", hour, min, month, day)
 	log.Print(timeAndDate)
 
-	for i := 23; i < 24; i++ {
-		day = i
-		log.Print(fmt.Sprintf("Location is set as: %s", currentTime.Location().String()))
-		log.Print(fmt.Sprintf("Local is: %s", currentTime.Local().String()))
+	log.Print(fmt.Sprintf("Location is set as: %s", currentTime.Location().String()))
+	log.Print(fmt.Sprintf("Local is: %s", currentTime.Local().String()))
 
-		allItemsFromDatabase := dbConnection.GetAllItems().Items
-		log.Print(fmt.Sprintf("%d items found in database", len(allItemsFromDatabase)))
-		for _, i := range allItemsFromDatabase {
-			err := dynamodbattribute.UnmarshalMap(i, &item)
-			if err != nil {
-				log.Print("Got error unmarshalling. System will exit.")
-				log.Print(err.Error())
-				os.Exit(1)
-			}
-			var popularMessagesFromToday []Message
-			group := getGroup(item.GroupId, accessToken)
-			log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupId))
-			popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime, day)
-			log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
-			messageToPost := getMessageToPost(&popularMessagesFromToday)
-			if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
-				log.Print(fmt.Sprintf("Posting message: '%s' by %s", messageToPost.Text, messageToPost.Name))
-				fmt.Println("COLDPLAY:", group.Name, day, messageToPost.Text)
-				//postMessage(messageToPost, accessToken, item.BotId)
-
-			}
+	allItemsFromDatabase := dbConnection.GetAllItems().Items
+	log.Print(fmt.Sprintf("%d items found in database", len(allItemsFromDatabase)))
+	for _, i := range allItemsFromDatabase {
+		err := dynamodbattribute.UnmarshalMap(i, &item)
+		if err != nil {
+			log.Print("Got error unmarshalling. System will exit.")
+			log.Print(err.Error())
+			os.Exit(1)
+		}
+		var popularMessagesFromToday []Message
+		group := getGroup(item.GroupId, accessToken)
+		log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupId))
+		popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
+		log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
+		messageToPost := getMessageToPost(&popularMessagesFromToday)
+		if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
+			log.Print(fmt.Sprintf("Posting message: '%s' by %s", messageToPost.Text, messageToPost.Name))
+			postMessage(messageToPost, item.BotId)
 		}
 	}
-
 }
 
 func getGroup(groupId, accessToken string) Group {
@@ -494,7 +487,6 @@ func main() {
 		log.Print(fmt.Sprintf("Got %d groups.", len(groups)))
 		menu(groups, accessToken)
 	} else {
-		handler()
 		lambda.Start(handler)
 	}
 }
