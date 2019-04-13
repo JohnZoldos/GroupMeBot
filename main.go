@@ -25,6 +25,7 @@ const urlBase = "https://api.groupme.com/v3"
 const botName = "MemsBot"
 const aviLink = "https://i.groupme.com/1024x1024.png.415633b4d1264b85859f977673e8438c"
 const location = "EST"
+const callbackUrl = "https://7cygninyze.execute-api.us-east-2.amazonaws.com/default/callback"
 
 type BotInfo struct {
 	BotId string `json:"bot_id"`
@@ -306,6 +307,7 @@ func createBot(groupId, accessToken string) string {
 			"name":       botName,
 			"group_id":   groupId,
 			"avatar_url": aviLink,
+			"callback_url": callbackUrl,
 		},
 	}
 	bytesRepresentation, err := json.Marshal(params)
@@ -450,6 +452,7 @@ func sendMessages(accessToken string) {
 		if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
 			log.Print(fmt.Sprintf("Posting message: '%s' by %s", messageToPost.Text, messageToPost.Name))
 			postMessage(messageToPost, item.BotId)
+			dbConnection.UpdateLastMessageId(group.GroupId, messageToPost.MessageId)
 		}
 	}
 }

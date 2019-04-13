@@ -18,6 +18,15 @@ type Item struct {
 	LastMessageId string `json:"last_message_id"`
 }
 
+
+type ItemInfo struct {
+	LastMessageId string `json:":l"`
+}
+
+type ItemKey struct {
+	GroupId string `json:"group_id"`
+}
+
 var dynamoClient *dynamodb.DynamoDB
 
 const tableName = "GroupMeBot"
@@ -151,44 +160,44 @@ func RemoveBot(groupId string) {
 	}
 }
 
-//func UpdateLastMessageId() {
-//	info := Item{
-//		LastMessageId: 0.5,
-//	}
-//
-//	item := Item{
-//		Year:  2015,
-//		Title: "The Big New Movie",
-//	}
-//
-//	expr, err := dynamodbattribute.MarshalMap(info)
-//	if err != nil {
-//		fmt.Println("Got error marshalling info:")
-//		fmt.Println(err.Error())
-//		os.Exit(1)
-//	}
-//
-//	key, err := dynamodbattribute.MarshalMap(item)
-//	if err != nil {
-//		fmt.Println("Got error marshalling item:")
-//		fmt.Println(err.Error())
-//		os.Exit(1)
-//	}
-//
-//	// Update item in table Movies
-//	input := &dynamodb.UpdateItemInput{
-//		ExpressionAttributeValues: expr,
-//		TableName:                 aws.String("Movies"),
-//		Key:                       key,
-//		ReturnValues:              aws.String("UPDATED_NEW"),
-//		UpdateExpression:          aws.String("set info.rating = :r"),
-//	}
-//
-//	_, err = svc.UpdateItem(input)
-//	if err != nil {
-//		fmt.Println(err.Error())
-//		return
-//	}
-//
-//	fmt.Println("Successfully updated 'The Big New Movie' (2015) rating to 0.5")
-//}
+func UpdateLastMessageId(groupId, lastMessageId string) {
+	if dynamoClient == nil {
+		startSession() //should i shut it down manually?
+	}
+	info := ItemInfo{
+		LastMessageId: lastMessageId,
+	}
+
+	item := ItemKey{
+		GroupId:  groupId,
+	}
+
+	update, err := dynamodbattribute.MarshalMap(info)
+	if err != nil {
+		fmt.Println("Got error marshalling info:")
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	key, err := dynamodbattribute.MarshalMap(item)
+	if err != nil {
+		fmt.Println("Got error marshalling item:")
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		Key:                       key,
+		TableName:                 aws.String(tableName),
+		UpdateExpression:          aws.String("set last_message_id = :l"),
+		ExpressionAttributeValues: update,
+	}
+
+	_, err = dynamoClient.UpdateItem(input)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	log.Println("Updated last message id completed!")
+
+}
