@@ -232,8 +232,8 @@ func (message Message) isPopular() bool {
 }
 
 func postMessage(message Message, botId string) {
-
-	messageDate := time.Unix(message.TimeSent, 0)
+	loc, _ := time.LoadLocation(location)
+	messageDate := time.Unix(message.TimeSent, 0).In(loc)
 	messageYear, messageMonth, messageDay := messageDate.Date()
 	url := fmt.Sprintf("%s/bots/post", urlBase)
 	messageText := fmt.Sprintf("\"%s\"", message.Text)
