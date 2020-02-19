@@ -1,15 +1,13 @@
 package main
 
 import (
+	"GroupMeChatBot/cloudwatchTrigger"
+	"GroupMeChatBot/dbConnection"
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/subosito/gotenv"
-	"hello/cloudwatchTrigger"
-	"hello/dbConnection"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -19,6 +17,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/subosito/gotenv"
 )
 
 const urlBase = "https://api.groupme.com/v3"
@@ -304,9 +306,9 @@ func createBot(groupId, accessToken string) string {
 	url := fmt.Sprintf("%s/bots?token=%s", urlBase, accessToken)
 	params := map[string]interface{}{
 		"bot": map[string]interface{}{
-			"name":       botName,
-			"group_id":   groupId,
-			"avatar_url": aviLink,
+			"name":         botName,
+			"group_id":     groupId,
+			"avatar_url":   aviLink,
 			"callback_url": callbackUrl,
 		},
 	}
@@ -344,6 +346,7 @@ func deleteBot(botId, accessToken string) {
 }
 
 func handler() {
+	log.Print("Handler")
 	gotenv.Load()
 	accessToken := os.Getenv("ACCESS_TOKEN")
 	log.Print("Getting groups...")
@@ -481,15 +484,19 @@ func getGroup(groupId, accessToken string) Group {
 }
 
 func main() {
+	menuFlag := flag.Bool("menu", false, "boolean to bring up the menu. Takes highest priority of the flags.")
+	flag.Parse()
+
 	gotenv.Load()
-	argsWithoutProg := os.Args[1:]
-	if len(argsWithoutProg) > 0 {
+	if *menuFlag {
+		log.Print("Bringing up menu...")
 		accessToken := os.Getenv("ACCESS_TOKEN")
 		log.Print("Getting groups...")
 		groups := getAllGroups(accessToken)
 		log.Print(fmt.Sprintf("Got %d groups.", len(groups)))
 		menu(groups, accessToken)
 	} else {
+		log.Print("Running in prod...")
 		lambda.Start(handler)
 	}
 }
