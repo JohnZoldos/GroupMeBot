@@ -2,14 +2,15 @@ package dbConnection
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-	"log"
-	"os"
 )
 
 type Item struct {
@@ -17,7 +18,6 @@ type Item struct {
 	BotId         string `json:"bot_id"`
 	LastMessageId string `json:"last_message_id"`
 }
-
 
 type ItemInfo struct {
 	LastMessageId string `json:":l"`
@@ -131,7 +131,7 @@ func GetAllItems() *dynamodb.ScanOutput {
 	if err != nil {
 		log.Print("Error reached when querying db. Exiting.")
 		log.Print(err)
-		os.Exit(1)
+		//os.Exit(1)
 	}
 
 	log.Print("Got all items from db.")
@@ -169,7 +169,7 @@ func UpdateLastMessageId(groupId, lastMessageId string) {
 	}
 
 	item := ItemKey{
-		GroupId:  groupId,
+		GroupId: groupId,
 	}
 
 	update, err := dynamodbattribute.MarshalMap(info)

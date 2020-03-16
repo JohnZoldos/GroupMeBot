@@ -13,12 +13,14 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/subosito/gotenv"
 )
@@ -27,10 +29,14 @@ const urlBase = "https://api.groupme.com/v3"
 const botName = "MemsBot"
 const aviLink = "https://i.groupme.com/1024x1024.png.415633b4d1264b85859f977673e8438c"
 const location = "EST"
-const callbackUrl = "https://7cygninyze.execute-api.us-east-2.amazonaws.com/default/callback"
+const callbackURL = "https://7cygninyze.execute-api.us-east-2.amazonaws.com/default/callback"
+
+var local = false
+var menu = false
+var testGroupBotID string
 
 type BotInfo struct {
-	BotId string `json:"bot_id"`
+	BotID string `json:"bot_id"`
 }
 
 type Bot struct {
@@ -42,8 +48,8 @@ type BotCreationResponse struct {
 }
 
 type Group struct {
-	Id      string        `json:"id"`
-	GroupId string        `json:"group_id"`
+	ID      string        `json:"id"`
+	GroupID string        `json:"group_id"`
 	Name    string        `json:"name"`
 	Members []interface{} `json:"members"`
 }
@@ -66,13 +72,13 @@ type Event struct {
 
 type Attachment struct {
 	Type string `json:"type"`
-	Url  string `json:"url"`
+	URL  string `json:"url"`
 }
 
 type Message struct {
 	Name        string       `json:"name"`
 	Text        string       `json:"text"`
-	MessageId   string       `json:"id"`
+	MessageID   string       `json:"id"`
 	FavoriteBy  []string     `json:"favorited_by"`
 	TimeSent    int64        `json:"created_at"`
 	Event       Event        `json:"event"`
@@ -156,9 +162,62 @@ func countUsersAddedOrRemoved(str string) int {
 	return count
 }
 
-func addMessagesFromDate(numMembers *int, year int, month time.Month, day int, messages *[]*Message, popularMessagesFromDate *[]Message) {
+func addMessagesFromDate(numMembers *int, year int, month time.Month, day int, messages *[]*Message, popularMessagesFromDate *[]Message, popularMessagesFromDateAlreadyReposted *[]Message, repostedAlreadyMap map[string]int) {
+
 	for _, message := range *messages {
-		if strings.Contains(message.Event.Type, "bot") || message.SenderType == "bot" {
+		loc, _ := time.LoadLocation(location)
+		messageDate := time.Unix(message.TimeSent, 0).In(loc)
+		messageYear, messageMonth, messageDay := messageDate.Date()
+		if messageYear == year { //messages from this year don't need to be examined
+			continue
+		}
+		if messageMonth != month || messageDay != day { //messages not from this date don't need to be examined
+			continue
+		}
+		if message.Name == "MemsBot" { //identify and extract messages that have already been reposted by memsbot
+			if strings.HasPrefix(message.Text, "Last Mem's Context:\n- ") {
+				continue
+			}
+			re, err := regexp.Compile(` \n\n- .* \| \d{1,2}/\d{1,2}/\d{2} \| ❤️x\d*`)
+
+			if err != nil {
+				log.Print(fmt.Sprintf("error trying to compile regexp"))
+				continue
+			}
+			messageText := message.Text
+
+			match := re.FindStringIndex(messageText)
+			if match == nil {
+				continue
+			}
+			attachmentText := ""
+			if len(message.Attachments) > 0 {
+				attachmentText += message.Attachments[0].URL
+			}
+			if match[0]-1 <= 1 {
+				messageText = attachmentText
+			} else {
+				messageText = messageText[1:match[0]-1] + attachmentText
+			}
+			if repostedAlreadyMap[messageText] == 0 {
+				repostedAlreadyMap[messageText] = messageYear //avoids replacing previous entries in the map
+			} else {
+				log.Print(fmt.Sprintf("Not adding this message to the repostedAlready map because it's already in there %s", messageText))
+			}
+		}
+		attachementText := ""
+		if len(message.Attachments) > 0 {
+			attachementText += message.Attachments[0].URL
+		}
+		messageText := message.Text + attachementText
+		alreadyReposted := false
+		if repostedAlreadyMap[messageText] >= year-1 { //add messages already posted by memsbot to a separate list
+			log.Print(fmt.Sprintf("This message isn't a candidate to be reposted because it was reposted last year: %s", messageText))
+			continue
+		} else if repostedAlreadyMap[messageText] > 0 {
+			alreadyReposted = true
+		}
+		if strings.Contains(message.Event.Type, "bot") || message.SenderType == "bot" { //other groupme messages (like those from polls and calendar events) don't get reposted
 			continue
 		}
 		if message.Name == "GroupMe" && strings.Contains(message.Text, "added") {
@@ -168,31 +227,35 @@ func addMessagesFromDate(numMembers *int, year int, month time.Month, day int, m
 			*numMembers = *numMembers + countUsersAddedOrRemoved(message.Text)
 		}
 		message.numMembersAtTime = *numMembers
-		loc, _ := time.LoadLocation(location)
-		messageDate := time.Unix(message.TimeSent, 0).In(loc)
-		messageYear, messageMonth, messageDay := messageDate.Date()
-		if messageYear == year {
-			continue
-		}
-		if messageMonth == month && messageDay == day && message.isPopular() {
-			*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
+		if message.isPopular() {
+			if alreadyReposted {
+				*popularMessagesFromDateAlreadyReposted = append(*popularMessagesFromDateAlreadyReposted, *message)
+			} else {
+				*popularMessagesFromDate = append(*popularMessagesFromDate, *message)
+			}
 			log.Print(fmt.Sprintf("Adding message to popular messages from today. Its time is %d", message.TimeSent))
 			log.Print(fmt.Sprintf("Message's month is %d and its day is %d", messageMonth, messageDay))
+			log.Print(fmt.Sprintf("Message has been reposted before: %t", alreadyReposted))
+
 		}
 	}
 
 }
 
 func getPopularMessagesFromDate(group Group, accessToken string, date time.Time) []Message {
-	groupId := group.GroupId
+	groupID := group.GroupID
 	numMembers := group.getNumMembers()
 	year, month, day := date.Date()
 
-	beforeId := ""
+	beforeID := ""
 	var allMessages []Message
 	var popularMessagesFromDate []Message
+	var popularMessagesFromDateAlreadyReposted []Message
+
+	repostedAlreadyMap := make(map[string]int)
+
 	for {
-		body, err := getMessageBatch(groupId, accessToken, beforeId)
+		body, err := getMessageBatch(groupID, accessToken, beforeID)
 		if err != nil || len(body) == 0 {
 			break
 		}
@@ -203,18 +266,21 @@ func getPopularMessagesFromDate(group Group, accessToken string, date time.Time)
 			panic(err)
 		}
 		messagesBatch := messageResponse.MessagesMap.Messages
-		addMessagesFromDate(&numMembers, year, month, day, &messagesBatch, &popularMessagesFromDate)
+		addMessagesFromDate(&numMembers, year, month, day, &messagesBatch, &popularMessagesFromDate, &popularMessagesFromDateAlreadyReposted, repostedAlreadyMap)
 		if len(messagesBatch) == 0 {
 			break
 		}
 		lastMessage := messagesBatch[len(messagesBatch)-1]
-		beforeId = lastMessage.MessageId
+		beforeID = lastMessage.MessageID
 
 		for _, message := range messagesBatch {
 			allMessages = append(allMessages, *message)
 		}
 	}
 
+	if len(popularMessagesFromDate) == 0 {
+		popularMessagesFromDate = popularMessagesFromDateAlreadyReposted
+	}
 	return popularMessagesFromDate
 }
 
@@ -233,7 +299,7 @@ func (message Message) isPopular() bool {
 
 }
 
-func postMessage(message Message, botId string) {
+func postMessage(message Message, botID string) {
 	loc, _ := time.LoadLocation(location)
 	messageDate := time.Unix(message.TimeSent, 0).In(loc)
 	messageYear, messageMonth, messageDay := messageDate.Date()
@@ -247,18 +313,20 @@ func postMessage(message Message, botId string) {
 		text = ""
 	}
 	params := map[string]interface{}{
-		"bot_id": botId,
+		"bot_id": botID,
 		"text":   text,
 	}
 	if len(message.Attachments) > 0 {
-		params["picture_url"] = message.Attachments[0].Url
+		params["picture_url"] = message.Attachments[0].URL
 	}
 	bytesRepresentation, err := json.Marshal(params)
+
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
 		log.Print("Fatal error reached when posting message.")
 		log.Fatalln(err)
 	}
+
 	defer resp.Body.Close()
 	log.Print("Post message api request completed.")
 
@@ -309,7 +377,7 @@ func createBot(groupId, accessToken string) string {
 			"name":         botName,
 			"group_id":     groupId,
 			"avatar_url":   aviLink,
-			"callback_url": callbackUrl,
+			"callback_url": callbackURL,
 		},
 	}
 	bytesRepresentation, err := json.Marshal(params)
@@ -328,7 +396,7 @@ func createBot(groupId, accessToken string) string {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return bot.Response.Info.BotId
+	return bot.Response.Info.BotID
 
 }
 
@@ -346,22 +414,26 @@ func deleteBot(botId, accessToken string) {
 }
 
 func handler() {
-	log.Print("Handler")
 	gotenv.Load()
 	accessToken := os.Getenv("ACCESS_TOKEN")
 	log.Print("Getting groups...")
 	groups := getAllGroups(accessToken)
 	log.Print(fmt.Sprintf("Got %d groups.", len(groups)))
-	argsWithoutProg := os.Args[1:]
-	if len(argsWithoutProg) > 0 {
-		menu(groups, accessToken)
+	if menu {
+		log.Print(fmt.Sprintf("Accessing the menu"))
+		showMenu(groups, accessToken)
+	} else if local {
+		log.Print(fmt.Sprintf("Local run..."))
+		sendMessages(accessToken)
+
 	} else {
+		log.Print(fmt.Sprintf("Sending messages..."))
 		sendMessages(accessToken)
 		cloudwatchTrigger.UpdateTrigger()
 	}
 }
 
-func menu(groups []Group, accessToken string) {
+func showMenu(groups []Group, accessToken string) {
 	fmt.Println("Make a selection:")
 	fmt.Println("[1] Add the bot to a group.")
 	fmt.Println("[2] Remove the bot from a group.")
@@ -381,7 +453,7 @@ func menu(groups []Group, accessToken string) {
 func botCreationMenu(groups []Group, accessToken string) {
 	fmt.Println("\n\nHere are all the groups you are a member of. Enter the number corresponding to the group you want to add a bot to: ")
 	groupIndex := menuHelper(groups)
-	groupId := groups[groupIndex].GroupId
+	groupId := groups[groupIndex].GroupID
 	botId := dbConnection.GetBotForGroup(groupId)
 	if botId == "" {
 		botId = createBot(groupId, accessToken)
@@ -394,7 +466,7 @@ func botCreationMenu(groups []Group, accessToken string) {
 func botDeletionMenu(groups []Group, accessToken string) {
 	fmt.Println("\n\nHere are all the groups you are a member of. Enter the number corresponding to the group you want to remove a bot from: ")
 	groupIndex := menuHelper(groups)
-	groupId := groups[groupIndex].GroupId
+	groupId := groups[groupIndex].GroupID
 	botId := dbConnection.GetBotForGroup(groupId)
 	if botId == "" {
 		fmt.Println("That group doesn't have this bot.")
@@ -439,6 +511,9 @@ func sendMessages(accessToken string) {
 
 	allItemsFromDatabase := dbConnection.GetAllItems().Items
 	log.Print(fmt.Sprintf("%d items found in database", len(allItemsFromDatabase)))
+
+	findTestGroup(allItemsFromDatabase, accessToken)
+
 	for _, i := range allItemsFromDatabase {
 		err := dynamodbattribute.UnmarshalMap(i, &item)
 		if err != nil {
@@ -448,20 +523,47 @@ func sendMessages(accessToken string) {
 		}
 		var popularMessagesFromToday []Message
 		group := getGroup(item.GroupId, accessToken)
-		log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupId))
+		log.Print(fmt.Sprintf("Got group with name %s and id %s.", group.Name, group.GroupID))
 		popularMessagesFromToday = getPopularMessagesFromDate(group, accessToken, currentTime)
 		log.Print(fmt.Sprintf("Found %d popular messages from today for group %s", len(popularMessagesFromToday), group.Name))
 		messageToPost := getMessageToPost(&popularMessagesFromToday)
 		if messageToPost.numLikes() > 0 { //checking to see if the message returned was a default message object or if its a real message
 			log.Print(fmt.Sprintf("Posting message: '%s' by %s", messageToPost.Text, messageToPost.Name))
+			if local {
+				item.BotId = testGroupBotID
+			}
 			postMessage(messageToPost, item.BotId)
-			dbConnection.UpdateLastMessageId(group.GroupId, messageToPost.MessageId)
+			if !local {
+				dbConnection.UpdateLastMessageId(group.GroupID, messageToPost.MessageID)
+			}
 		}
 	}
 }
 
-func getGroup(groupId, accessToken string) Group {
-	url := fmt.Sprintf("%s/groups/%s?token=%s", urlBase, groupId, accessToken)
+func findTestGroup(dbItems []map[string]*dynamodb.AttributeValue, accessToken string) {
+	if !local {
+		return
+	}
+	item := dbConnection.Item{}
+	for _, i := range dbItems {
+		err := dynamodbattribute.UnmarshalMap(i, &item)
+		if err != nil {
+			log.Print("Got error unmarshalling. System will exit.")
+			log.Print(err.Error())
+			os.Exit(1)
+		}
+		group := getGroup(item.GroupId, accessToken)
+		if group.Name == "Test Group" {
+			testGroupBotID = item.BotId
+			log.Print(fmt.Sprintf("Found test group %s, making the test bot id %s", group.ID, item.BotId))
+			return
+		}
+	}
+
+}
+
+func getGroup(groupID, accessToken string) Group {
+	url := fmt.Sprintf("%s/groups/%s?token=%s", urlBase, groupID, accessToken)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Print("Fatal error reached when getting group.")
@@ -485,16 +587,23 @@ func getGroup(groupId, accessToken string) Group {
 
 func main() {
 	menuFlag := flag.Bool("menu", false, "boolean to bring up the menu. Takes highest priority of the flags.")
+	localFlag := flag.Bool("local", false, "boolean to run locally (but not to bring up the menu)")
+
 	flag.Parse()
 
 	gotenv.Load()
 	if *menuFlag {
+		menu = true
 		log.Print("Bringing up menu...")
 		accessToken := os.Getenv("ACCESS_TOKEN")
 		log.Print("Getting groups...")
 		groups := getAllGroups(accessToken)
 		log.Print(fmt.Sprintf("Got %d groups.", len(groups)))
-		menu(groups, accessToken)
+		showMenu(groups, accessToken)
+	} else if *localFlag {
+		local = true
+		log.Print(fmt.Sprintf("Running locally..."))
+		handler()
 	} else {
 		log.Print("Running in prod...")
 		lambda.Start(handler)
