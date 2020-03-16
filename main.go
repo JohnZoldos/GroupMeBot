@@ -35,18 +35,22 @@ var local = false
 var menu = false
 var testGroupBotID string
 
+//BotInfo struct
 type BotInfo struct {
 	BotID string `json:"bot_id"`
 }
 
+//Bot struct
 type Bot struct {
 	Info BotInfo `json:"bot"`
 }
 
+//BotCreationResponse struct
 type BotCreationResponse struct {
 	Response Bot `json:"response"`
 }
 
+//Group struct
 type Group struct {
 	ID      string        `json:"id"`
 	GroupID string        `json:"group_id"`
@@ -58,23 +62,28 @@ func (group Group) getNumMembers() int {
 	return len(group.Members)
 }
 
+//OneGroup struct
 type OneGroup struct {
 	Group Group `json:"response"`
 }
 
+//Groups struct
 type Groups struct {
 	Groups []Group `json:"response"`
 }
 
+//Event struct
 type Event struct {
 	Type string `json:"type"`
 }
 
+//Attachment struct
 type Attachment struct {
 	Type string `json:"type"`
 	URL  string `json:"url"`
 }
 
+//Message struct
 type Message struct {
 	Name        string       `json:"name"`
 	Text        string       `json:"text"`
@@ -96,10 +105,12 @@ func (message Message) percentageLikes() float32 {
 	return float32(message.numLikes()) / float32(message.numMembersAtTime)
 }
 
+//Messages struct
 type Messages struct {
 	Messages []*Message `json:"messages"`
 }
 
+//MessagesResponse struct
 type MessagesResponse struct {
 	MessagesMap Messages `json:"response"`
 }
@@ -128,11 +139,11 @@ func getPageOfGroups(accessToken string, page int) Groups {
 	return groups
 }
 
-func getMessageBatch(groupId string, accessToken string, before_id string) ([]byte, error) {
+func getMessageBatch(groupID string, accessToken string, beforeID string) ([]byte, error) {
 	numMessages := 100
-	url := fmt.Sprintf("%s/groups/%s/messages?token=%s&limit=%d", urlBase, groupId, accessToken, numMessages)
-	if before_id != "" {
-		url += fmt.Sprintf("&before_id=%s", before_id)
+	url := fmt.Sprintf("%s/groups/%s/messages?token=%s&limit=%d", urlBase, groupID, accessToken, numMessages)
+	if beforeID != "" {
+		url += fmt.Sprintf("&before_id=%s", beforeID)
 	}
 	resp, err := http.Get(url)
 	if err != nil {
@@ -370,12 +381,12 @@ func getAllGroups(accessToken string) []Group {
 	return allGroups
 }
 
-func createBot(groupId, accessToken string) string {
+func createBot(groupID, accessToken string) string {
 	url := fmt.Sprintf("%s/bots?token=%s", urlBase, accessToken)
 	params := map[string]interface{}{
 		"bot": map[string]interface{}{
 			"name":         botName,
-			"group_id":     groupId,
+			"group_id":     groupID,
 			"avatar_url":   aviLink,
 			"callback_url": callbackURL,
 		},
@@ -400,10 +411,10 @@ func createBot(groupId, accessToken string) string {
 
 }
 
-func deleteBot(botId, accessToken string) {
+func deleteBot(botID, accessToken string) {
 	url := fmt.Sprintf("%s/bots/destroy?token=%s", urlBase, accessToken)
 	params := map[string]interface{}{
-		"bot_id": botId,
+		"bot_id": botID,
 	}
 	bytesRepresentation, err := json.Marshal(params)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bytesRepresentation))
@@ -453,11 +464,11 @@ func showMenu(groups []Group, accessToken string) {
 func botCreationMenu(groups []Group, accessToken string) {
 	fmt.Println("\n\nHere are all the groups you are a member of. Enter the number corresponding to the group you want to add a bot to: ")
 	groupIndex := menuHelper(groups)
-	groupId := groups[groupIndex].GroupID
-	botId := dbConnection.GetBotForGroup(groupId)
-	if botId == "" {
-		botId = createBot(groupId, accessToken)
-		dbConnection.AddBot(groupId, botId)
+	groupID := groups[groupIndex].GroupID
+	botID := dbConnection.GetBotForGroup(groupID)
+	if botID == "" {
+		botID = createBot(groupID, accessToken)
+		dbConnection.AddBot(groupID, botID)
 	} else {
 		fmt.Println("That group already has this bot.")
 	}
@@ -466,18 +477,18 @@ func botCreationMenu(groups []Group, accessToken string) {
 func botDeletionMenu(groups []Group, accessToken string) {
 	fmt.Println("\n\nHere are all the groups you are a member of. Enter the number corresponding to the group you want to remove a bot from: ")
 	groupIndex := menuHelper(groups)
-	groupId := groups[groupIndex].GroupID
-	botId := dbConnection.GetBotForGroup(groupId)
-	if botId == "" {
+	groupID := groups[groupIndex].GroupID
+	botID := dbConnection.GetBotForGroup(groupID)
+	if botID == "" {
 		fmt.Println("That group doesn't have this bot.")
 	} else {
-		dbConnection.RemoveBot(groupId)
-		deleteBot(botId, accessToken)
+		dbConnection.RemoveBot(groupID)
+		deleteBot(botID, accessToken)
 	}
 }
 
 func menuHelper(groups []Group) int {
-	fmt.Println("-------------------------------------------------------------------------------------------------------------------\n")
+	fmt.Println("-------------------------------------------------------------------------------------------------------------------")
 	for i, group := range groups {
 		fmt.Println(fmt.Sprintf("[%d] %s", i, group.Name))
 	}
